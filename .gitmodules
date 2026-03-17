@@ -1,6 +1,6 @@
 [submodule "mono"]
 	path = mono
-	url = ../mono
+	url = https://github.com/palginpav/mono.git
 [submodule "FNA"]
 	path = FNA
 	url = ../FNA
@@ -9,13 +9,13 @@
 	url = ../FNA.NetStub
 [submodule "winforms"]
 	path = winforms
-	url = ../winforms
+	url = https://github.com/palginpav/winforms.git
 [submodule "winforms-datavisualization"]
 	path = winforms-datavisualization
 	url = ../winforms-datavisualization
 [submodule "wpf"]
 	path = wpf
-	url = ../wpf
+	url = https://github.com/palginpav/wpf.git
 [submodule "monoDX"]
 	path = monoDX
 	url = ../monoDX
