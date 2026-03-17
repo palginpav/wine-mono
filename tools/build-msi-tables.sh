@@ -7,7 +7,8 @@ rm -f "${CABFILENAME}" "${TABLEDIR}/*.idt"
 mkdir -p "${TABLEDIR}"
 cp "${TABLESRCDIR}"/*.idt "${TABLEDIR}"
 
-IMAGECABWINPATH=`${WINE} winepath -w "${CABFILENAME}"`
+LOCALCAB_UNIX=`mktemp /tmp/winemono-cab.XXXXXX.cab`
+LOCALCAB_WINPATH=`${WINE} winepath -w "${LOCALCAB_UNIX}"`
 
 CONTENTDIR="${TABLEDIR}/cab_contents"
 rm -rf "${CONTENTDIR}"
@@ -58,7 +59,9 @@ mono "$GENFILEHASHES" >> ${TABLEDIR}/msifilehash.idt
 
 cd "${CONTENTDIR}"
 
-${WINE} cabarc -m mszip -r -p N "$IMAGECABWINPATH" * || exit 1
+rm -f "${LOCALCAB_UNIX}"
+${WINE} cabarc -m mszip -r -p N "${LOCALCAB_WINPATH}" * || exit 1
+cp -f "${LOCALCAB_UNIX}" "${CABFILENAME}"
 
 cd "${IMAGEDIR}"
 
@@ -68,7 +71,7 @@ rm -rf "${CONTENTDIR}"
 SEQ=0
 rm -f "${TABLEDIR}/sequence"
 
-${WINE} cabarc L "$IMAGECABWINPATH" | sed 's/\r//' | sed -e "$FILEKEY_REV_EXPR" | while read -r f; do
+${WINE} cabarc L "${LOCALCAB_WINPATH}" | sed 's/\r//' | sed -e "$FILEKEY_REV_EXPR" | while read -r f; do
     FILEKEY=`echo $f|sed -e "$FILEKEY_EXPR"`
     FILESIZE=`ls -l "$f" | awk '{print $5}'`
     PARENT=`dirname "$f"`
@@ -86,6 +89,8 @@ ${WINE} cabarc L "$IMAGECABWINPATH" | sed 's/\r//' | sed -e "$FILEKEY_REV_EXPR" 
 done
 
 printf '1\t%s\t\t%s\t\t\n' `cat "${TABLEDIR}/sequence"` "$CABINET" >> ${TABLEDIR}/media.idt
+
+rm -f "${LOCALCAB_UNIX}"
 
 if test x${WHICHMSI} = xsupport; then
 	PRODUCTCODE=`uuidgen -s -n 27ec5e1a-7f2f-445c-9e78-76ae42a51b6d -N "$MSI_VERSION" | tr [a-z] [A-Z]`
